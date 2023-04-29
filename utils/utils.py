@@ -108,35 +108,3 @@ def generateSidebar(df, variable_type):
     df_behavior = df[(df["Date"] >= start_date) & (df["Date"] <= end_date)]
     df_behavior = df_behavior.drop(categorical_drop, axis = 1)
     return df_behavior
-# -------------------------------------------------------------------------------------------------------------
-def anotherSidebar():
-    folder_path = "datasets"
-    if not os.path.exists(folder_path):
-        os.mkdir(folder_path)
-
-    with st.sidebar.expander("File upload", expanded=True):
-        uploadFiles(folder_path)
-    selected_dataset = selectFile(folder_path)
-    
-    if selected_dataset != None:
-        df = pd.read_csv(os.path.join(folder_path, selected_dataset))
-        st.write(df)
-
-def uploadFiles(folder_path):
-    uploaded_file = st.file_uploader(label="Load dataset to be explored", type=["csv"], help="")
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        file_path = os.path.join(folder_path, uploaded_file.name)
-        if not os.path.exists(file_path):
-            df.to_csv(file_path, index=False)
-            st.success("Successfully saved")
-        else:
-            st.warning("Already existing file", icon="🚨")
-    return
-
-def selectFile(folder_path):
-    files = [os.path.join(folder_path, file) for file in os.listdir(folder_path)]
-    files.sort(key=os.path.getctime, reverse=True)
-    files = [file.split("/")[1] for file in files]
-    return st.sidebar.selectbox("Select the dataset to analyze", files, index=0, help="")
-
