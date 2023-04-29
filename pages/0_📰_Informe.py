@@ -10,8 +10,10 @@ st.set_page_config(page_title="Informe", page_icon="📰")
 with open('texts.json', 'r') as archivo:
     texts = json.load(archivo)
 
-with open('dataset.json', 'r') as archivo:
-    dataset = json.load(archivo)
+#with open('dataset.json', 'r') as archivo:
+#    dataset = json.load(archivo)
+
+df = anotherSidebar()
 
 st.title('Análisis exploratorio de datos | EDA 📊')
 st.markdown(texts['informe']['EDA'])
