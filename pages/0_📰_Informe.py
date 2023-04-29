@@ -2,8 +2,8 @@ import os
 import json
 import pandas as pd
 import streamlit as st
-from utils.utils import *
 from utils.informe import *
+from utils.sidebar import generateSidebar
 
 st.set_page_config(page_title="Informe", page_icon="📰")
 
@@ -13,7 +13,7 @@ with open('texts.json', 'r') as archivo:
 #with open('dataset.json', 'r') as archivo:
 #    dataset = json.load(archivo)
 
-df = anotherSidebar()
+df = generateSidebar()
 
 st.title('Análisis exploratorio de datos | EDA 📊')
 st.markdown(texts['informe']['EDA'])
