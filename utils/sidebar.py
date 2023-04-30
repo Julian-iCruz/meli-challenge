@@ -20,10 +20,11 @@ def generateSidebar():
     df[columns_type["categorical_columns"]] = df[columns_type["categorical_columns"]].astype(str)
     
     df, columns = filterDataset(df, columns_type)
+    deleteFile(folder_path)
     return df, columns
 
 def uploadFiles(folder_path):
-    uploaded_file = st.file_uploader(label="Load dataset to be explored", type=["csv"], help="")
+    uploaded_file = st.file_uploader(label="Load dataset to be explored", type=["csv"], help="Help")
     if not uploaded_file:
         return
     
@@ -31,16 +32,20 @@ def uploadFiles(folder_path):
     file_path = os.path.join(folder_path, uploaded_file.name)
     if not os.path.exists(file_path):
         df.to_csv(file_path, index=False)
-        st.success("Successfully saved")
+        st.success("Successfully saved", icon="✅")
     else:
         st.warning("Already existing file", icon="🚨")
     return
 
 def selectFile(folder_path):
+    files = getFiles(folder_path)
+    return st.sidebar.selectbox("Select the dataset to analyze", files, index=0, help="Help")
+
+def getFiles(folder_path):
     files = [os.path.join(folder_path, file) for file in os.listdir(folder_path)]
     files.sort(key=os.path.getctime, reverse=True)
     files = [file.split("/")[1] for file in files]
-    return st.sidebar.selectbox("Select the dataset to analyze", files, index=0, help="")
+    return files
 
 def getColumnsType(df):
     numerical_columns = df.select_dtypes(include=["int", "float"]).columns.tolist()
@@ -64,7 +69,7 @@ def getDateTypeColumns(df):
     return list_date_type_columns
 
 def filterDataset(df, columns_type):
-    st.sidebar.header("Filtros generales")
+    st.sidebar.header("General filters")
     with st.sidebar.expander("Delete columns"):
         df, columns_drop = deleterColumns(df, columns_type)
     
@@ -139,7 +144,11 @@ def filterNumericalColumns(df, columns_numerical):
         df = df[(df[column]>=min_value) & (df[column]<=max_value)]
     return df
 
-def deleteFile(file, folder_path):
-    if st.sidebar.button("Delete file") and file:
-        os.remove(os.path.join(folder_path, file))
-        st.sidebar.success("Dataset deleted")
+def deleteFile(folder_path):
+    st.sidebar.header("Delete dataset")
+    files = getFiles(folder_path)
+    file_to_deleted = st.sidebar.selectbox("Choose the dataset to delete", files, index=0, help="Help")
+    if st.sidebar.button("Delete dataset"):
+        os.remove(os.path.join(folder_path, file_to_deleted))
+        st.sidebar.success("'" + str(file_to_deleted) + "' removed", icon="✅")
+    return
