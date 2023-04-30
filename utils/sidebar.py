@@ -13,7 +13,7 @@ def generateSidebar():
     selected_dataset = selectFile(folder_path)
     
     if selected_dataset == None:
-        return
+        return None, None
     
     df = pd.read_csv(os.path.join(folder_path, selected_dataset))
     columns_type = getColumnsType(df)

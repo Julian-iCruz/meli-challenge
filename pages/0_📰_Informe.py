@@ -10,10 +10,7 @@ st.set_page_config(page_title="Informe", page_icon="📰")
 with open('texts.json', 'r') as archivo:
     texts = json.load(archivo)
 
-#with open('dataset.json', 'r') as archivo:
-#    dataset = json.load(archivo)
-
-df = generateSidebar()
+df, columns = generateSidebar()
 
 st.title('Análisis exploratorio de datos | EDA 📊')
 st.markdown(texts['informe']['EDA'])
@@ -23,9 +20,14 @@ st.markdown(texts['informe']['Procesamiento'])
 st.code(texts['informe']['Code'], language='python')
 st.write('Obtenemos el siguiente dataset procesado.')
 
-df = pd.read_csv(dataset['Dataset_name'])
-df = procesingLogin(df)
-st.dataframe(df, use_container_width = True)
+if columns != None:
+    try:
+        df = procesingLogin(df)
+        st.dataframe(df, use_container_width = True)
+    except:
+        st.warning("The data set could not be processed.", icon="🚨")
+else:
+    st.warning("Choose the dataset to be processed with the above code", icon="🚨")
 
 st.markdown(texts['informe']['Procesamiento_1'])
 st.divider()
