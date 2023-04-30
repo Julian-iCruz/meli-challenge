@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import pandas as pd
 import streamlit as st
 from datetime import time
@@ -12,20 +13,25 @@ def generateSidebar():
         uploadFiles(folder_path)
     selected_dataset = selectFile(folder_path)
     
-    if selected_dataset != None:
-        df = pd.read_csv(os.path.join(folder_path, selected_dataset))
-        st.sidebar.header("Filtros generales")
-
-        with st.sidebar.expander("Time range"):
-            columns_type = getColumnsType(df)
-            df[columns_type["categorical_columns"]] = df[columns_type["categorical_columns"]].astype(str)
-            df = selectTimeRange(df, columns_type["datetime_columns"])
+    if selected_dataset == None:
+        return
+    
+    df = pd.read_csv(os.path.join(folder_path, selected_dataset))
+    columns_type = getColumnsType(df)
+    df[columns_type["categorical_columns"]] = df[columns_type["categorical_columns"]].astype(str)
+    
+    st.sidebar.header("Filtros generales")
+    with st.sidebar.expander("Delete columns"):
+        df, columns_drop = deleterColumns(df, columns_type)
+    
+    with st.sidebar.expander("Time range"):
+        df = selectTimeRange(df, columns_type["datetime_columns"], columns_drop["datetime_drop"])
+    
+    with st.sidebar.expander("Categorical columns"):
+        df = filterCategoricalColumns(df, columns_type["categorical_columns"], columns_drop["categorical_drop"])
         
-        with st.sidebar.expander("Delete columns"):
-            df, columns_drop = deleterColumns(df, columns_type)
-
-        st.write(df.shape)
-        st.write(df)
+    st.write(df.shape)
+    st.write(df)
 
 
 def uploadFiles(folder_path):
@@ -67,27 +73,28 @@ def getDateTypeColumns(df):
             pass
     return list_date_type_columns
 
-def selectTimeRange(df, columns):
+def selectTimeRange(df, columns_datetime, columns_drop):
     datetime_columns = []
-    if len(columns) != 0:
-        datetime_columns = columns
+    if len(columns_datetime) != 0:
+        datetime_columns = set(columns_datetime) - set(columns_drop)
     time_selector = st.selectbox("Select the datetime variables", datetime_columns, index=0)
 
-    if time_selector != None:
-        df[time_selector] = pd.to_datetime(df[time_selector])
-        start_date = df[time_selector].min().date()
-        end_date = df[time_selector].max().date()
-
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date_input = st.date_input("Start date", start_date)
-            st.write(start_date)
-        with col2:
-            end_date_input = st.date_input("End date", end_date)
-            st.write(end_date)
-        df = df[(df[time_selector]>=pd.to_datetime(start_date_input)) & (df[time_selector]<=pd.to_datetime(end_date_input))]
-        time_range = st.slider("Range of hours", value=(time(00, 00), time(23, 59)))
-        df = df[(df[time_selector].apply(lambda x: x.time())>=time_range[0]) & (df[time_selector].apply(lambda x: x.time())<=time_range[1])]
+    if time_selector == None:
+        return df
+    
+    df[time_selector] = pd.to_datetime(df[time_selector])
+    start_date = df[time_selector].min().date()
+    end_date = df[time_selector].max().date()
+    col1, col2 = st.columns(2)
+    with col1:
+        start_date_input = st.date_input("Start date", start_date)
+        st.write(start_date)
+    with col2:
+        end_date_input = st.date_input("End date", end_date)
+        st.write(end_date)
+    df = df[(df[time_selector]>=pd.to_datetime(start_date_input)) & (df[time_selector]<=pd.to_datetime(end_date_input))]
+    time_range = st.slider("Range of hours", value=(time(00, 00), time(23, 59)))
+    df = df[(df[time_selector].apply(lambda x: x.time())>=time_range[0]) & (df[time_selector].apply(lambda x: x.time())<=time_range[1])]
     return df
 
 def deleterColumns(df, columns_type):
@@ -100,6 +107,13 @@ def deleterColumns(df, columns_type):
         "categorical_drop": categorical_drop,
         "numerical_drop": numerical_drop,
     }
+
+def filterCategoricalColumns(df, columns_categorical, columns_drop):
+    for column in set(columns_categorical) - set(columns_drop):
+        categorical_selector = st.multiselect(column, df[column].value_counts().keys(), key = column)
+        if len(categorical_selector) != 0:
+            df = df[df[column].isin(categorical_selector)]
+    return df
 
 def deleteFile(file, folder_path):
     if st.sidebar.button("Delete file") and file:
