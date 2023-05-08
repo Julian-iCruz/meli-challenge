@@ -39,10 +39,16 @@ if columns != None:
                 univariateAnalysis(df, columns["categorical"])
 
             with tab2_cat:
-                bivariateAnalysis(df, columns["categorical"])
-            
+                if len(columns["categorical"])>=2:
+                    bivariateAnalysis(df, columns["categorical"])
+                else:
+                    st.info("Your dataset must have more than 2 categorical columns to make use of this section.", icon="⚠️")
             with tab3_cat:
-                multivariateAnalysis(df, columns["categorical"])
+                if len(columns["categorical"])>=3:
+                    multivariateAnalysis(df, columns["categorical"])
+                else:
+                    st.info("Your dataset must have more than 3 categorical columns to make use of this section.", icon="⚠️")
+
         else:
             st.info('Su dataset no cuenta con variables Categóricas', icon="❕")
     ## ---------------------------------- Variables Numéricas ----------------------------------
