@@ -74,9 +74,9 @@ def filterDataset(df, columns_type):
         df, columns_drop = deleterColumns(df, columns_type)
     
     columns = {
-        "datetime": set(columns_type["datetime_columns"]) - set(columns_drop["datetime_drop"]),
-        "categorical": set(columns_type["categorical_columns"]) - set (columns_drop["categorical_drop"]),
-        "numerical": set(columns_type["numerical_columns"]) - set(columns_drop["numerical_drop"]),
+        "datetime": list(set(columns_type["datetime_columns"]) - set(columns_drop["datetime_drop"])),
+        "categorical": list(set(columns_type["categorical_columns"]) - set (columns_drop["categorical_drop"])),
+        "numerical": list(set(columns_type["numerical_columns"]) - set(columns_drop["numerical_drop"])),
     }
 
     with st.sidebar.expander("Time range"):
