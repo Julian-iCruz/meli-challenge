@@ -21,7 +21,7 @@ def bivariateAnalysis(df, categorical_columns):
     st.subheader("Análisis Bivariado")
     st.divider()
     
-    filters, subfilters = createFilterColumns(df, categorical_columns, 2)
+    filters, subfilters = createFilterColumns(df, categorical_columns, "bivariate", 2)
     counter = Counter(filters)
     if any(count > 1 for count in counter.values()):
         st.warning('Escoja variables diferentes', icon="⚠️")
@@ -62,7 +62,7 @@ def multivariateAnalysis(df, categorical_columns):
     if len(categorical_columns)>3:
         number_filters = st.slider('Cantidad de filtros', 3, max_slider, 3)
 
-    filters, subfilters = createFilterColumns(df, categorical_columns, number_filters)
+    filters, subfilters = createFilterColumns(df, categorical_columns, "multivariate" ,number_filters)
     counter = Counter(filters)
     if any(count > 1 for count in counter.values()):
         st.warning('Escoja variables diferentes', icon="⚠️")
@@ -78,14 +78,14 @@ def multivariateAnalysis(df, categorical_columns):
     showBoxPlot(df_categorical_count)
     return
 
-def createFilterColumns(df, categorical_columns, number_columns):
+def createFilterColumns(df, categorical_columns, key, number_columns):
     columns = st.columns(number_columns)
     filter_list = []; subfilter_list = []
     for column in range(len(columns)):
         with columns[column]:
-            filter = generateCategoricalFilter(categorical_columns, str(number_columns) + '_key_' + str(column), column)
+            filter = generateCategoricalFilter(categorical_columns, str(number_columns) + '_key_' + str(column) + key, column)
             filter_list.append(filter)
-            subfilter = generateSubcategoricalFilter(df, filter, str(number_columns) + '_subkey_' + str(column))
+            subfilter = generateSubcategoricalFilter(df, filter, str(number_columns) + '_subkey_' + str(column) + key)
             subfilter_list.append(subfilter)
     return filter_list, subfilter_list
 

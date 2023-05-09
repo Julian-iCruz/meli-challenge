@@ -7,6 +7,7 @@ from utils.utils import *
 import plotly.express as px
 from utils.categorical_variables import *
 from utils.sidebar import generateSidebar
+from utils.user_behavior import *
 
 st.set_page_config(page_title="Análisis de variables", page_icon="📊")
 
@@ -68,6 +69,7 @@ if columns != None:
     ## ---------------------------------- Comportamiento de usuario ----------------------------------
     with tab4:
         st.header("Comportamiento de usuario")
-        st.info("Section under development", icon="⚠️")
+        create_user_beahavior(df, columns)
+
 else:
     st.info('Upload a Dataset file for analysis', icon="⚠️")
