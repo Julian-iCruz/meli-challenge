@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import pandas as pd
 import streamlit as st
 from datetime import time
@@ -18,7 +19,8 @@ def generateSidebar():
     df = pd.read_csv(os.path.join(folder_path, selected_dataset))
     columns_type = getColumnsType(df)
     df[columns_type["categorical_columns"]] = df[columns_type["categorical_columns"]].astype(str)
-    
+    df.replace("nan", np.nan, inplace=True)
+
     df, columns = filterDataset(df, columns_type)
     deleteFile(folder_path)
     return df, columns
