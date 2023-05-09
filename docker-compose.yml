@@ -5,7 +5,7 @@ services:
     container_name: meli-challenge
     build: .
     command: streamlit run 🏠_Home.py --server.port 7000
-    volumes:
-      - .:/usr/src/app
+    #volumes:
+    #  - .:/usr/src/app
     ports:
       - "7777:7000"
