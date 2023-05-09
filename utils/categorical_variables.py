@@ -11,89 +11,86 @@ def univariateAnalysis(df, categorical_columns):
     col1, col2 = st.columns(2)
 
     with col1:
-        generateUnivariateCategoricalGraph(df, categorical_columns, 'Key_variate_1', 'Subkey_variate_1', 2)
+        generateUnivariateCategoricalGraph(df, categorical_columns, 'Key_variate_1', 'Subkey_variate_1')
 
     with col2:
-        generateUnivariateCategoricalGraph(df, categorical_columns, 'Key_variate_2', 'Subkey_variate_2', 3)
+        generateUnivariateCategoricalGraph(df, categorical_columns, 'Key_variate_2', 'Subkey_variate_2')
     return
 
 def bivariateAnalysis(df, categorical_columns):
     st.subheader("Análisis Bivariado")
     st.divider()
     
-    filters, subfilters = createFilterColumns(df, categorical_columns, 2)
+    filters, subfilters = createFilterColumns(df, categorical_columns, "bivariate", 2)
     counter = Counter(filters)
-    if not any(count > 1 for count in counter.values()):
-        df, df_categorical_count, maximo, minimo = obtainMultivariateCount(df, filters)
-        range_count = generateSliderFilter(minimo, maximo, 'slider_bi')
-        df, df_categorical_count = filterSubcategories(df, df_categorical_count, filters, subfilters)
-        conditional = (df_categorical_count['Count'] >= range_count[0]) & (df_categorical_count['Count'] <= range_count[1])
-        df_categorical_count = df_categorical_count[conditional]
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            checkbox_count_percentage = st.checkbox('Porcentaje')
-        with col2:
-            checkbox_group_stack = st.checkbox('Grupo')
-
-        group_stack = 'stack'
-        count_percentage = 'Count'
-        if checkbox_group_stack:
-            group_stack = 'group'
-        if checkbox_count_percentage:
-            count_percentage = 'Porcentaje'
-
-        st.subheader('Grafico de barras')
-        fig = px.bar(df_categorical_count, x = filters[0], y = count_percentage, color = filters[1], barmode = group_stack, height = 650)
-        st.plotly_chart(fig, use_container_width = True)
-
-        st.subheader('Conteos | Porcentajes')
-        st.dataframe(df_categorical_count, use_container_width = True)
-        showDescribe(df_categorical_count)
-        
-        st.subheader('Correlación')
-        df_table = pd.crosstab(df[filters[0]], df[filters[1]])
-        fig = px.imshow(df_table,x = df_table.columns,y = df_table.index, width = 800)
-        st.plotly_chart(fig)
-
-        showBoxPlot(df_categorical_count)
-    else:
+    if any(count > 1 for count in counter.values()):
         st.warning('Escoja variables diferentes', icon="⚠️")
+        return
+    
+    df, df_categorical_count, maximo, minimo = obtainMultivariateCount(df, filters)
+    range_count = generateSliderFilter(minimo, maximo, 'slider_bi')
+    df, df_categorical_count = filterSubcategories(df, df_categorical_count, filters, subfilters)
+    conditional = (df_categorical_count['Count'] >= range_count[0]) & (df_categorical_count['Count'] <= range_count[1])
+    df_categorical_count = df_categorical_count[conditional]
+    group_stack, count_percentage = selectGroupstackCountPercentage()
+
+    st.subheader('Grafico de barras')
+    fig = px.bar(df_categorical_count, x = filters[0], y = count_percentage, color = filters[1], barmode = group_stack, height = 650)
+    st.plotly_chart(fig, use_container_width = True)
+
+    st.subheader('Conteos | Porcentajes')
+    st.dataframe(df_categorical_count, use_container_width = True)
+    showDescribe(df_categorical_count)
+    
+    st.subheader('Correlación')
+    df_table = pd.crosstab(df[filters[0]], df[filters[1]])
+    fig = px.imshow(df_table,x = df_table.columns,y = df_table.index, width = 800)
+    st.plotly_chart(fig)
+
+    showBoxPlot(df_categorical_count)
     return
 
 def multivariateAnalysis(df, categorical_columns):
     st.subheader("Análisis Multivariado")
     st.divider()
 
-    number_filters = st.slider('Cantidad de filtros', 1, 5, 4)
-    filters, subfilters = createFilterColumns(df, categorical_columns, number_filters)
+    max_slider = 5
+    if len(categorical_columns)<5:
+        max_slider = len(categorical_columns)
+
+    number_filters = 3
+    if len(categorical_columns)>3:
+        number_filters = st.slider('Cantidad de filtros', 3, max_slider, 3)
+
+    filters, subfilters = createFilterColumns(df, categorical_columns, "multivariate" ,number_filters)
     counter = Counter(filters)
-    if not any(count > 1 for count in counter.values()):
-        df, df_categorical_count, maximo, minimo = obtainMultivariateCount(df, filters)
-        range_count = generateSliderFilter(minimo, maximo, 'slider_multi')
-        df, df_categorical_count = filterSubcategories(df, df_categorical_count, filters, subfilters)
-        conditional = (df_categorical_count['Count'] >= range_count[0]) & (df_categorical_count['Count'] <= range_count[1])
-        df_categorical_count = df_categorical_count[conditional]
-        st.dataframe(df_categorical_count, use_container_width = True)
-        showDescribe(df_categorical_count)
-        showBoxPlot(df_categorical_count)
-    else:
+    if any(count > 1 for count in counter.values()):
         st.warning('Escoja variables diferentes', icon="⚠️")
+        return
+    
+    df, df_categorical_count, maximo, minimo = obtainMultivariateCount(df, filters)
+    range_count = generateSliderFilter(minimo, maximo, 'slider_multi')
+    df, df_categorical_count = filterSubcategories(df, df_categorical_count, filters, subfilters)
+    conditional = (df_categorical_count['Count'] >= range_count[0]) & (df_categorical_count['Count'] <= range_count[1])
+    df_categorical_count = df_categorical_count[conditional]
+    st.dataframe(df_categorical_count, use_container_width = True)
+    showDescribe(df_categorical_count)
+    showBoxPlot(df_categorical_count)
     return
 
-def createFilterColumns(df, categorical_columns, number_columns):
+def createFilterColumns(df, categorical_columns, key, number_columns):
     columns = st.columns(number_columns)
     filter_list = []; subfilter_list = []
     for column in range(len(columns)):
         with columns[column]:
-            filter = (generateCategoricalFilter(categorical_columns, str(number_columns) + '_key_' + str(column), column + 1))
+            filter = generateCategoricalFilter(categorical_columns, str(number_columns) + '_key_' + str(column) + key, column)
             filter_list.append(filter)
-            subfilter = generateSubcategoricalFilter(df, filter, str(number_columns) + '_subkey_' + str(column))
+            subfilter = generateSubcategoricalFilter(df, filter, str(number_columns) + '_subkey_' + str(column) + key)
             subfilter_list.append(subfilter)
     return filter_list, subfilter_list
 
-def generateUnivariateCategoricalGraph(df, categorical_columns, key, subkey, index):
-    filter = generateCategoricalFilter(categorical_columns, key, index)
+def generateUnivariateCategoricalGraph(df, categorical_columns, key, subkey):
+    filter = generateCategoricalFilter(categorical_columns, key)
     subfilter = generateSubcategoricalFilter(df, filter, subkey)
     df_categorical_count, maximo, minimo = obtainUnivariateCount(df, filter)
     range_count = generateSliderFilter(minimo, maximo, key)
@@ -126,8 +123,8 @@ def generateUnivariateCategoricalGraph(df, categorical_columns, key, subkey, ind
 
     return
 
-def generateCategoricalFilter(categorical_columns, key, index):
-    return st.selectbox('Categorica', categorical_columns, key = key, index = index)
+def generateCategoricalFilter(categorical_columns, key, index=0):
+    return st.selectbox('Categorica', categorical_columns, key=key, index=index)
 
 def generateSubcategoricalFilter(df, categorical_selector, key):
     return st.multiselect(categorical_selector, df[categorical_selector].value_counts().keys(), key = key)
@@ -172,3 +169,19 @@ def showBoxPlot(df):
     fig = px.box(df, x = ['Count'], orientation = 'h')
     st.plotly_chart(fig, use_container_width = True)
     return
+
+def selectGroupstackCountPercentage():
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        checkbox_count_percentage = st.checkbox('Porcentaje')
+    with col2:
+        checkbox_group_stack = st.checkbox('Grupo')
+
+    group_stack = 'stack'
+    count_percentage = 'Count'
+    if checkbox_group_stack:
+        group_stack = 'group'
+    if checkbox_count_percentage:
+        count_percentage = 'Porcentaje'
+    return group_stack, count_percentage
