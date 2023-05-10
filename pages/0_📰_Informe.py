@@ -39,8 +39,6 @@ st.markdown(categorical['bivariate'])
 st.markdown(categorical['multivariate'])
 st.divider()
 
-#image = Image.open('img/newplot.png')
-#st.image(image, caption='Sunrise by the mountains')
 st.title('Procesamiento de datos | 🛠')
 processing = texts['informe']['processing']
 st.markdown(processing['target_1'])
@@ -52,7 +50,7 @@ try:
     shape = df_procesingLogin.shape
     st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
     st.dataframe(df_procesingLogin, use_container_width = True)
-    downloadData(df_procesingLogin, "data_procesing_login")
+    downloadData(df_procesingLogin, "data_login")
 except:
     st.warning("The data set could not be processed.", icon="🚨")
 st.markdown(processing['posprocessing_1'])
@@ -66,11 +64,23 @@ try:
     st.dataframe(df_procesingActionContent, use_container_width = True)
     shape = df_procesingActionContent.shape
     st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
-    downloadData(df_procesingActionContent, "data_procesing_action_content")
+    downloadData(df_procesingActionContent, "data_action_content")
 except:
     st.warning("The data set could not be processed.", icon="🚨")
 st.markdown(processing['posprocessing_2'])
-
 st.divider()
+
+st.title('Ataques y Vulnerabilidades |🧑🏻‍💻')
+attacks_vulnerabilities = texts['informe']['attacks_vulnerabilities']
+
+st.markdown(attacks_vulnerabilities["intro"])
+st.image(Image.open('img/1_riesgos_de_privacidad.jpg'))
+st.markdown(attacks_vulnerabilities["attacks_risk"])
+st.image(Image.open('img/2_riesgos_de_privacidad.jpg'))
+st.markdown(attacks_vulnerabilities["xss"])
+st.image(Image.open('img/3_xss.jpg'))
+st.markdown(attacks_vulnerabilities["xss_1"])
+st.image(Image.open('img/4_xss.jpg'))
+
 st.title('Preguntas Challenge |❔')
 st.markdown(texts['informe']['questions'])
