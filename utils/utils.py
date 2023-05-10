@@ -17,10 +17,9 @@ def joinData():
 def convertDf(df):
     return df.to_csv(index=False).encode("utf-8")
 
-def downloadData(df):
+def downloadData(df, df_name):
     csv = convertDf(df)
-    title = st.text_input("Nombre de descarga de su archivo", "Data_Experiment")
-    st.download_button(label="Download data as CSV", data = csv, file_name = str(title)+".csv", mime="text/csv",)
+    st.download_button(label="Download data as CSV", data = csv, file_name = str(df_name)+".csv", mime="text/csv",)
     return
 
 def deleteNullRowsAndColumns(df):

@@ -19,7 +19,8 @@ st.title('Análisis exploratorio de datos | EDA 📊')
 st.markdown(intro['join'])
 st.code(intro['code_join'], language='python')
 st.markdown(intro['after_join'])
-downloadData(joinData())
+downloadData(joinData(), "data_experiment")
+st.markdown(intro['description'])
 st.divider()
 
 st.subheader('Análisis descriptivo 📊')
@@ -46,17 +47,30 @@ st.markdown(processing['target_1'])
 st.code(processing['code_1'], language='python')
 st.write('Obtenemos el siguiente dataset procesado.')
 
-if columns != None:
-    try:
-        df = procesingLogin(df)
-        st.dataframe(df, use_container_width = True)
-    except:
-        st.warning("The data set could not be processed.", icon="🚨")
-else:
-    st.warning("Choose the dataset to be processed with the above code", icon="🚨")
-
+try:
+    df_procesingLogin = procesingLogin(df)
+    shape = df_procesingLogin.shape
+    st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
+    st.dataframe(df_procesingLogin, use_container_width = True)
+    downloadData(df_procesingLogin, "data_procesing_login")
+except:
+    st.warning("The data set could not be processed.", icon="🚨")
 st.markdown(processing['posprocessing_1'])
-st.divider()
 
+st.markdown(processing['target_2'])
+st.code(processing['code_2'], language='python')
+st.write('Obtenemos el siguiente dataset procesado.')
+
+try:
+    df_procesingActionContent = procesingActionContent(df)
+    st.dataframe(df_procesingActionContent, use_container_width = True)
+    shape = df_procesingActionContent.shape
+    st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
+    downloadData(df_procesingActionContent, "data_procesing_action_content")
+except:
+    st.warning("The data set could not be processed.", icon="🚨")
+st.markdown(processing['posprocessing_2'])
+
+st.divider()
 st.title('Preguntas Challenge |❔')
 st.markdown(texts['informe']['questions'])

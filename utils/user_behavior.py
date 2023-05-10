@@ -5,7 +5,12 @@ from utils.categorical_variables import generateSubcategoricalFilter
 
 def create_user_beahavior(df, columns):
     date_column, grouping_column, graph_frequency = generateFilters(columns)
-    df_group = df.groupby([pd.Grouper(key=date_column, freq=graph_frequency)] + grouping_column).size().reset_index()
+    try:
+        df_group = df.groupby([pd.Grouper(key=date_column, freq=graph_frequency)] + grouping_column).size().reset_index()
+    except:
+        st.info("Change the date column or your dataset has no date columnl", icon="⚠️")
+        return
+    
     df_group = df_group.rename(columns={0: "count"})
     
     if len(grouping_column)==0:
