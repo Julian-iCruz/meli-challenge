@@ -102,7 +102,9 @@ def generateUnivariateCategoricalGraph(df, categorical_columns, key, subkey):
     filter = generateCategoricalFilter(categorical_columns, key)
     subfilter = generateSubcategoricalFilter(df, filter, subkey)
     df_categorical_count, maximo, minimo = obtainUnivariateCount(df, filter)
-    range_count = generateSliderFilter(minimo, maximo, key)
+    range_count = [minimo,maximo]
+    if maximo != minimo:
+        range_count = generateSliderFilter(minimo, maximo, key)
 
 
     if len(subfilter) != 0:

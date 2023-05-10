@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from datetime import time, timedelta
+from utils.utils import deleteNullRowsAndColumns
 
 def generateSidebar():
     folder_path = "datasets"
@@ -18,10 +19,12 @@ def generateSidebar():
     
     df = pd.read_csv(os.path.join(folder_path, selected_dataset))
     columns_type = getColumnsType(df)
-    df[columns_type["categorical_columns"]] = df[columns_type["categorical_columns"]].astype(str)
+    df[columns_type["categorical"]] = df[columns_type["categorical"]].astype(str)
     df.replace("nan", np.nan, inplace=True)
 
     df, columns = filterDataset(df, columns_type)
+    shape = df.shape
+    st.sidebar.write('Filas: ',shape[0], 'Columnas: ', shape[1])
     deleteFile(folder_path)
     return df, columns
 
@@ -55,9 +58,9 @@ def getColumnsType(df):
     categorical_columns = df.drop(columns=numerical_columns + datetime_columns, axis=1).columns.to_list()
 
     return {
-        "datetime_columns" : datetime_columns,
-        "categorical_columns" : categorical_columns,
-        "numerical_columns" : numerical_columns,
+        "datetime" : datetime_columns,
+        "categorical" : categorical_columns,
+        "numerical" : numerical_columns,
     }
 
 def getDateTypeColumns(df):
@@ -76,9 +79,9 @@ def filterDataset(df, columns_type):
         df, columns_drop = deleterColumns(df, columns_type)
 
     columns = {
-        "datetime": list(set(columns_type["datetime_columns"]) - set(columns_drop["datetime_drop"])),
-        "categorical": list(set(columns_type["categorical_columns"]) - set (columns_drop["categorical_drop"])),
-        "numerical": list(set(columns_type["numerical_columns"]) - set(columns_drop["numerical_drop"])),
+        "datetime": list(set(columns_type["datetime"]) - set(columns_drop["datetime_drop"])),
+        "categorical": list(set(columns_type["categorical"]) - set (columns_drop["categorical_drop"])),
+        "numerical": list(set(columns_type["numerical"]) - set(columns_drop["numerical_drop"])),
     }
     
     with st.sidebar.expander("Time range"):
@@ -87,9 +90,10 @@ def filterDataset(df, columns_type):
     with st.sidebar.expander("Categorical columns"):
         df = filterCategoricalColumns(df, columns["categorical"])
 
-    with st.sidebar.expander("Numerical columns"):
-        df = filterNumericalColumns(df, columns["numerical"])
-    return df, columns
+    #with st.sidebar.expander("Numerical columns"):
+    #    df = filterNumericalColumns(df, columns["numerical"])
+
+    return deleteNullRowsAndColumns(df), getColumnsType(df)
 
 def selectTimeRange(df, columns_datetime):
     datetime_columns = []
@@ -117,9 +121,9 @@ def selectTimeRange(df, columns_datetime):
     return df
 
 def deleterColumns(df, columns_type):
-    datetime_drop = st.multiselect("Datetime columns", columns_type["datetime_columns"])
-    categorical_drop = st.multiselect("Categorical columns", columns_type["categorical_columns"])
-    numerical_drop = st.multiselect("Numeric columns", columns_type["numerical_columns"])
+    datetime_drop = st.multiselect("Datetime columns", columns_type["datetime"])
+    categorical_drop = st.multiselect("Categorical columns", columns_type["categorical"])
+    numerical_drop = st.multiselect("Numeric columns", columns_type["numerical"])
     df.drop(columns=categorical_drop + numerical_drop + datetime_drop, axis=1, inplace=True)
     return df, {
         "datetime_drop": datetime_drop,

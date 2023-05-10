@@ -20,7 +20,8 @@ st.divider()
 if columns != None:
     shape = df.shape
     st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
-    st.dataframe(df, use_container_width = True) 
+    st.dataframe(df, use_container_width = True)
+    downloadData(df, "data")
     st.divider()
 
     ## ---------------------------------- Descripcion del dataset ----------------------------------

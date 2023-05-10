@@ -60,6 +60,7 @@ if columns != None:
     with tab2:
         if len(columns["numerical"]) != 0:
             st.header("Variables Numéricas")
+            st.info('Section under development', icon="❕")
         else:
             st.info('Su dataset no cuenta con variables Numericas', icon="❕")
 
@@ -67,6 +68,7 @@ if columns != None:
     with tab3:
         if len(columns["numerical"]) != 0 and len(columns["categorical"]) != 0:
             st.header("Variables Combinadas")
+            st.info('Section under development', icon="❕")
         else:
             st.info('Su dataset no cuenta con variables Numericas o Categóricas', icon="❕")
 
