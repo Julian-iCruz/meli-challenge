@@ -25,10 +25,22 @@ if columns != None:
 
     ## ---------------------------------- Descripcion del dataset ----------------------------------
     st.header('Exploratorio de variables 👋')
-    st.markdown(texts['Description_exploratorio'])
-    df_describe = df.describe(include=['O'])
+    descriptive = texts['descriptive']
     df_dtype_null =  pd.DataFrame(data = getInfo(df), index = ['Type', 'Nulls'])
-    df_describe =  pd.concat([df_describe, df_dtype_null.drop(['Date'], axis = 1)], axis = 0)
-    st.dataframe(df_describe, use_container_width = True)
+    if len(columns["categorical"])!=0:
+        st.markdown(descriptive["categorical_descriptive"])
+        df_describe = df[columns["categorical"]].describe(include=['O'])
+        df_describe =  pd.concat([df_describe, df_dtype_null.drop(columns["numerical"] + columns["datetime"], axis = 1)], axis = 0)
+        st.dataframe(df_describe, use_container_width = True)
+        shape = df_describe.shape
+        st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
+    if len(columns["numerical"])!=0:
+        st.markdown(descriptive["numerical_descriptive"])
+        df_describe = df[columns["numerical"]].describe()
+        df_describe =  pd.concat([df_describe, df_dtype_null.drop(columns["categorical"] + columns["datetime"], axis = 1)], axis = 0)
+        st.dataframe(df_describe, use_container_width = True)
+        shape = df_describe.shape
+        st.write('Filas: ',shape[0], 'Columnas: ', shape[1])
+
 else:
     st.info('Upload a Dataset file for analysis', icon="⚠️")

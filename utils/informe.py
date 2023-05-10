@@ -1,5 +1,7 @@
+import re
 import pandas as pd
 import streamlit as st
+from utils.utils import deleteNullRowsAndColumns
 
 def procesingLogin(df):
     df['Date'] = pd.to_datetime(df['Date'])
@@ -22,3 +24,23 @@ def obtainRegularHours(df_in, user_list):
 
 def compareTime(row, regular_hour_user):
     return row["Login ID"] in regular_hour_user.keys() and row["Hour"] in regular_hour_user[row["Login ID"]]
+
+def replaceSquareBrackets(text, word):
+    return text.replace("[" + word + "]", "(" + word + ")")
+
+def convertContentDictionary(content):
+    if type(content) == str:
+        content = re.sub(r'\[(\d)', r'(\1', content)
+        content = re.sub(r'(\d)\]', r'\1)', content)
+        content = re.sub(r'\[(\w)\]', r'(\1)', content)
+        words = ["Programming Techniques", "Programming Languages", "Mathematical Logic and Formal Languages", "History of Computing", " to ", "JD96b", ""]
+        for word in words:
+            content = replaceSquareBrackets(content, word)
+        return dict(re.findall('\[(.*?)\]([^\[\]]+)', content))
+    return content
+
+def procesingActionContent(df):
+    df.rename(columns={"Login ID" : "User ID"}, inplace=True)
+    df["Content"] = df['Content'].apply(convertContentDictionary)
+    df = pd.concat([df.drop(['Content',], axis=1), df['Content'].apply(pd.Series)], axis=1)
+    return deleteNullRowsAndColumns(df)

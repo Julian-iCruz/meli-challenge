@@ -28,6 +28,10 @@ def bivariateAnalysis(df, categorical_columns):
         return
     
     df, df_categorical_count, maximo, minimo = obtainMultivariateCount(df, filters)
+    if df_categorical_count is None:
+        st.info("No existe realcion entre sus categorias")
+        return
+    
     range_count = generateSliderFilter(minimo, maximo, 'slider_bi')
     df, df_categorical_count = filterSubcategories(df, df_categorical_count, filters, subfilters)
     conditional = (df_categorical_count['Count'] >= range_count[0]) & (df_categorical_count['Count'] <= range_count[1])
@@ -69,10 +73,15 @@ def multivariateAnalysis(df, categorical_columns):
         return
     
     df, df_categorical_count, maximo, minimo = obtainMultivariateCount(df, filters)
+    if df_categorical_count is None:
+        st.info("No existe realcion entre sus categorias")
+        return
+    
     range_count = generateSliderFilter(minimo, maximo, 'slider_multi')
     df, df_categorical_count = filterSubcategories(df, df_categorical_count, filters, subfilters)
     conditional = (df_categorical_count['Count'] >= range_count[0]) & (df_categorical_count['Count'] <= range_count[1])
     df_categorical_count = df_categorical_count[conditional]
+    st.subheader('Conteos | Porcentajes')
     st.dataframe(df_categorical_count, use_container_width = True)
     showDescribe(df_categorical_count)
     showBoxPlot(df_categorical_count)
@@ -94,6 +103,7 @@ def generateUnivariateCategoricalGraph(df, categorical_columns, key, subkey):
     subfilter = generateSubcategoricalFilter(df, filter, subkey)
     df_categorical_count, maximo, minimo = obtainUnivariateCount(df, filter)
     range_count = generateSliderFilter(minimo, maximo, key)
+
 
     if len(subfilter) != 0:
         df_categorical_count = df_categorical_count.loc[subfilter]
@@ -143,6 +153,8 @@ def obtainUnivariateCount(df, column):
 
 def obtainMultivariateCount(df, columns):
     df_counts = df.groupby(columns).size().reset_index(name = 'Count')
+    if len(df_counts) ==0:
+        return df, None, None, None
     total_counts = df_counts['Count'].sum()
     df_counts['Porcentaje'] = df_counts['Count'] / total_counts * 100
     maximo = int(df_counts['Count'].max())

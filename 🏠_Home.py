@@ -25,4 +25,4 @@ with tab2:
 with tab3:
     showDefinitionVariables(texts)
 with tab4:
-    st.info('TAB 4')
+    st.info('Section under development')
