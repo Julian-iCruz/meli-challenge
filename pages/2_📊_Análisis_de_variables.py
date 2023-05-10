@@ -37,18 +37,22 @@ if columns != None:
             tab1_cat, tab2_cat, tab3_cat= st.tabs(["Análisis univariado", "Análisis bivariado", "Análisis multivariado"])
 
             with tab1_cat:
-                univariateAnalysis(df, columns["categorical"])
-
+                if len(df)>0:
+                    univariateAnalysis(df, columns["categorical"])
+                else:
+                    st.info("Change the date column in the sidebar", icon="⚠️")
             with tab2_cat:
-                if len(columns["categorical"])>=2:
+                if len(columns["categorical"])>=2 and len(df)>0:
                     bivariateAnalysis(df, columns["categorical"])
                 else:
                     st.info("Your dataset must have more than 2 categorical columns to make use of this section.", icon="⚠️")
+                    st.info("O Change the date column in the sidebar", icon="❕")
             with tab3_cat:
-                if len(columns["categorical"])>=3:
+                if len(columns["categorical"])>=3 and len(df)>0:
                     multivariateAnalysis(df, columns["categorical"])
                 else:
                     st.info("Your dataset must have more than 3 categorical columns to make use of this section.", icon="⚠️")
+                    st.info("O Change the date column in the sidebar", icon="❕")
 
         else:
             st.info('Su dataset no cuenta con variables Categóricas', icon="❕")
@@ -56,6 +60,7 @@ if columns != None:
     with tab2:
         if len(columns["numerical"]) != 0:
             st.header("Variables Numéricas")
+            st.info('Section under development', icon="❕")
         else:
             st.info('Su dataset no cuenta con variables Numericas', icon="❕")
 
@@ -63,6 +68,7 @@ if columns != None:
     with tab3:
         if len(columns["numerical"]) != 0 and len(columns["categorical"]) != 0:
             st.header("Variables Combinadas")
+            st.info('Section under development', icon="❕")
         else:
             st.info('Su dataset no cuenta con variables Numericas o Categóricas', icon="❕")
 
